@@ -1,2 +1,2 @@
 # gallinas.io
-Kadena Gallinas
+Kadena Gallinas Pact Contracts
