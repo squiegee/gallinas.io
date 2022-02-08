@@ -1475,7 +1475,7 @@
 
   (defun get-gallinas-for-sale ()
     @doc " Get the list of Gallinas currently for sale "
-    (select marketplace-table ["id", "price", "account"] (where "forsale" (= true)))
+    (sort ['price] (select marketplace-table ["id", "price", "account"] (where "forsale" (= true))))
   )
 
 ; --------------------------------------------------------------------------
@@ -1494,10 +1494,10 @@
 ; Create tables and initialize
 ; --------------------------------------------------------------------------
 
-(create-table free.collect-gallinas.gledger)
-(create-table free.collect-gallinas.supplies-table)
-(create-table free.collect-gallinas.uri-table)
-(create-table free.collect-gallinas.gallinas-table)
-(create-table free.collect-gallinas.total-gallinas-table)
-(create-table free.collect-gallinas.marketplace-table)
-(free.collect-gallinas.initialize)
+;(create-table free.collect-gallinas.gledger)
+;(create-table free.collect-gallinas.supplies-table)
+;(create-table free.collect-gallinas.uri-table)
+;(create-table free.collect-gallinas.gallinas-table)
+;(create-table free.collect-gallinas.total-gallinas-table)
+;(create-table free.collect-gallinas.marketplace-table)
+;(free.collect-gallinas.initialize)
