@@ -9,17 +9,6 @@
 (module collect-gallinas GOVERNANCE
 
   @doc "Kadena Gallinas - Gallina collectors game."
-  @model
-    [ (defproperty conserves-mass (amount:decimal)
-        (= (column-delta gledger 'balance) 0.0))
-      (defproperty valid-account-id (accountId:string)
-        (and
-          (>= (length accountId) 3)
-          (<= (length accountId) 256)))
-      (defproperty valid-gallina-name (petName:string)
-        (and
-          (>= (length petName) 3)
-          (<= (length petName) 30))) ]
 
   (implements gallinas-poly-fungible-v1)
 
@@ -137,7 +126,7 @@
   ;total gallinas count table
   (deftable total-gallinas-table:{all-gallinas})
 
-  ;gallina marketplace table schema
+  ;deprecated gallina marketplace table schema
   (defschema gallinas-forsale
     id:string
     account:string
@@ -145,8 +134,87 @@
     forsale:bool
   )
 
-  ;gallina marketplace table
+  ;deprecated gallina marketplace table
   (deftable marketplace-table:{gallinas-forsale})
+
+  ;gallina marketplace schema
+  (defschema gmarketoffer
+    id:string
+    account: string
+    name:string
+    forsale:bool
+    price:decimal
+    generation:integer
+    gender:string
+    mother-id:string
+    father-id:string
+    birthday:time
+    next-breed-time:time
+    special:integer
+    gene-1:integer
+    gene-1-p:integer
+    gene-1-h1:integer
+    gene-1-h2:integer
+    gene-1-h3:integer
+    gene-2:integer
+    gene-2-p:integer
+    gene-2-h1:integer
+    gene-2-h2:integer
+    gene-2-h3:integer
+    gene-3:integer
+    gene-3-p:integer
+    gene-3-h1:integer
+    gene-3-h2:integer
+    gene-3-h3:integer
+    gene-4:integer
+    gene-4-p:integer
+    gene-4-h1:integer
+    gene-4-h2:integer
+    gene-4-h3:integer
+    gene-5:integer
+    gene-5-p:integer
+    gene-5-h1:integer
+    gene-5-h2:integer
+    gene-5-h3:integer
+    gene-6:integer
+    gene-6-p:integer
+    gene-6-h1:integer
+    gene-6-h2:integer
+    gene-6-h3:integer
+    gene-7:integer
+    gene-7-p:integer
+    gene-7-h1:integer
+    gene-7-h2:integer
+    gene-7-h3:integer
+    gene-8:integer
+    gene-8-p:integer
+    gene-8-h1:integer
+    gene-8-h2:integer
+    gene-8-h3:integer
+    gene-9:integer
+    gene-9-p:integer
+    gene-9-h1:integer
+    gene-9-h2:integer
+    gene-9-h3:integer
+    gene-10:integer
+    gene-10-p:integer
+    gene-10-h1:integer
+    gene-10-h2:integer
+    gene-10-h3:integer
+    gene-11:integer
+    gene-11-p:integer
+    gene-11-h1:integer
+    gene-11-h2:integer
+    gene-11-h3:integer
+    gene-12:integer
+    gene-12-p:integer
+    gene-12-h1:integer
+    gene-12-h2:integer
+    gene-12-h3:integer
+  )
+
+  ;gallina marketplace table
+  (deftable gmarketplace:{gmarketoffer})
 
 ; --------------------------------------------------------------------------
 ; Constants
@@ -222,6 +290,16 @@
   (defcap INTERNAL ()
     @doc "For Internal Use"
     true)
+
+  (defcap MARKET (id:string account:string)
+    @doc " Capability to perform market operations. "
+    (enforce-guard
+      (at 'guard
+      (read gledger (key id account))))
+    (let ((gbalance  (at 'balance
+        (read gledger (key id account)))  ))
+  (enforce (> gbalance 0.0) "You can only update Gallinas you own."))
+  )
 
 ; --------------------------------------------------------------------------
 ; Utilities
@@ -417,6 +495,157 @@
     )
   )
 
+  (defun update-marketplace (id:string account:string forsale:bool price:decimal name:string)
+  (with-capability (MARKET id account)
+    (with-read gallinas-table id
+        { "id" := id1
+        , "name" := name1
+        , "generation" := generation1
+        , "gender" := gender1
+        , "mother-id" := motherid1
+        , "father-id" := fatherid1
+        , "birthday" := birthday1
+        , "special" := special1
+        , "next-breed-time" := next-breed-time1
+        , "gene-1" := gene-1-1
+        , "gene-1-p" := gene-1-p-1
+        , "gene-1-h1" := gene-1-h1-1
+        , "gene-1-h2" := gene-1-h2-1
+        , "gene-1-h3" := gene-1-h3-1
+        , "gene-2" := gene-2-1
+        , "gene-2-p" := gene-2-p-1
+        , "gene-2-h1" := gene-2-h1-1
+        , "gene-2-h2" := gene-2-h2-1
+        , "gene-2-h3" := gene-2-h3-1
+        , "gene-3" := gene-3-1
+        , "gene-3-p" := gene-3-p-1
+        , "gene-3-h1" := gene-3-h1-1
+        , "gene-3-h2" := gene-3-h2-1
+        , "gene-3-h3" := gene-3-h3-1
+        , "gene-4" := gene-4-1
+        , "gene-4-p" := gene-4-p-1
+        , "gene-4-h1" := gene-4-h1-1
+        , "gene-4-h2" := gene-4-h2-1
+        , "gene-4-h3" := gene-4-h3-1
+        , "gene-5" := gene-5-1
+        , "gene-5-p" := gene-5-p-1
+        , "gene-5-h1" := gene-5-h1-1
+        , "gene-5-h2" := gene-5-h2-1
+        , "gene-5-h3" := gene-5-h3-1
+        , "gene-6" := gene-6-1
+        , "gene-6-p" := gene-6-p-1
+        , "gene-6-h1" := gene-6-h1-1
+        , "gene-6-h2" := gene-6-h2-1
+        , "gene-6-h3" := gene-6-h3-1
+        , "gene-7" := gene-7-1
+        , "gene-7-p" := gene-7-p-1
+        , "gene-7-h1" := gene-7-h1-1
+        , "gene-7-h2" := gene-7-h2-1
+        , "gene-7-h3" := gene-7-h3-1
+        , "gene-8" := gene-8-1
+        , "gene-8-p" := gene-8-p-1
+        , "gene-8-h1" := gene-8-h1-1
+        , "gene-8-h2" := gene-8-h2-1
+        , "gene-8-h3" := gene-8-h3-1
+        , "gene-9" := gene-9-1
+        , "gene-9-p" := gene-9-p-1
+        , "gene-9-h1" := gene-9-h1-1
+        , "gene-9-h2" := gene-9-h2-1
+        , "gene-9-h3" := gene-9-h3-1
+        , "gene-10" := gene-10-1
+        , "gene-10-p" := gene-10-p-1
+        , "gene-10-h1" := gene-10-h1-1
+        , "gene-10-h2" := gene-10-h2-1
+        , "gene-10-h3" := gene-10-h3-1
+        , "gene-11" := gene-11-1
+        , "gene-11-p" := gene-11-p-1
+        , "gene-11-h1" := gene-11-h1-1
+        , "gene-11-h2" := gene-11-h2-1
+        , "gene-11-h3" := gene-11-h3-1
+        , "gene-12" := gene-12-1
+        , "gene-12-p" := gene-12-p-1
+        , "gene-12-h1" := gene-12-h1-1
+        , "gene-12-h2" := gene-12-h2-1
+        , "gene-12-h3" := gene-12-h3-1
+      }
+      (write gmarketplace id
+          { 'id: id
+          , 'account: account
+          , 'price: price
+          , 'forsale: forsale
+          , 'name: (if (= name "n") name1 name)
+          , 'generation: generation1
+          , "mother-id": motherid1
+          , "father-id": fatherid1
+          , "birthday": birthday1
+          , "next-breed-time": next-breed-time1
+          , 'gender: gender1
+          , 'special: special1
+          , 'gene-1: gene-1-1
+          , "gene-1-p": gene-1-p-1
+          , "gene-1-h1": gene-1-h1-1
+          , "gene-1-h2": gene-1-h2-1
+          , "gene-1-h3": gene-1-h3-1
+          , "gene-2": gene-2-1
+          , "gene-2-p": gene-2-p-1
+          , "gene-2-h1": gene-2-h1-1
+          , "gene-2-h2": gene-2-h2-1
+          , "gene-2-h3": gene-2-h3-1
+          , "gene-3": gene-3-1
+          , "gene-3-p": gene-3-p-1
+          , "gene-3-h1": gene-3-h1-1
+          , "gene-3-h2": gene-3-h2-1
+          , "gene-3-h3": gene-3-h3-1
+          , "gene-4": gene-4-1
+          , "gene-4-p": gene-4-p-1
+          , "gene-4-h1": gene-4-h1-1
+          , "gene-4-h2": gene-4-h2-1
+          , "gene-4-h3": gene-4-h3-1
+          , "gene-5": gene-5-1
+          , "gene-5-p": gene-5-p-1
+          , "gene-5-h1": gene-5-h1-1
+          , "gene-5-h2": gene-5-h2-1
+          , "gene-5-h3": gene-5-h3-1
+          , "gene-6": gene-6-1
+          , "gene-6-p": gene-6-p-1
+          , "gene-6-h1": gene-6-h1-1
+          , "gene-6-h2": gene-6-h2-1
+          , "gene-6-h3": gene-6-h3-1
+          , "gene-7": gene-7-1
+          , "gene-7-p": gene-7-p-1
+          , "gene-7-h1": gene-7-h1-1
+          , "gene-7-h2": gene-7-h2-1
+          , "gene-7-h3": gene-7-h3-1
+          , "gene-8": gene-8-1
+          , "gene-8-p": gene-8-p-1
+          , "gene-8-h1": gene-8-h1-1
+          , "gene-8-h2": gene-8-h2-1
+          , "gene-8-h3": gene-8-h3-1
+          , "gene-9": gene-9-1
+          , "gene-9-p": gene-9-p-1
+          , "gene-9-h1": gene-9-h1-1
+          , "gene-9-h2": gene-9-h2-1
+          , "gene-9-h3": gene-9-h3-1
+          , "gene-10": gene-10-1
+          , "gene-10-p": gene-10-p-1
+          , "gene-10-h1": gene-10-h1-1
+          , "gene-10-h2": gene-10-h2-1
+          , "gene-10-h3": gene-10-h3-1
+          , "gene-11": gene-11-1
+          , "gene-11-p": gene-11-p-1
+          , "gene-11-h1": gene-11-h1-1
+          , "gene-11-h2": gene-11-h2-1
+          , "gene-11-h3": gene-11-h3-1
+          , "gene-12": gene-12-1
+          , "gene-12-p": gene-12-p-1
+          , "gene-12-h1": gene-12-h1-1
+          , "gene-12-h2": gene-12-h2-1
+          , "gene-12-h3": gene-12-h3-1
+          })
+        )
+      )
+  )
+
 ; --------------------------------------------------------------------------
 ; gallina-poly-fungible-v1 implementation
 ; --------------------------------------------------------------------------
@@ -430,7 +659,7 @@
     @doc " Allows transfering of Gallina tokens "
     @managed amount TRANSFER-mgr
     (enforce-unit id amount)
-    (enforce (= amount 1.0) "You may only transfer 1 Gallina or Egg at a time.")
+    (enforce (= amount 1.0) "You may only transfer 1 Gallina at a time.")
     (compose-capability (DEBIT id sender))
     (compose-capability (CREDIT id receiver))
   )
@@ -440,7 +669,6 @@
       requested:decimal
     )
     @doc " Transfer manager "
-
     (let ((newbal (- managed requested)))
       (enforce (>= newbal 0.0)
         (format "TRANSFER exceeded for balance {}" [managed]))
@@ -462,11 +690,9 @@
     )
     @doc " Creates an account "
     (validate-account-id account)
-
     (enforce-coin-account-exists account)
 	  (let ((cur_guard (coin-account-guard account)))
     (enforce (= cur_guard guard) "Gallina account guards must match their coin contract account guards."))
-
     (insert gledger (key id account)
       { "balance" : 0.0
       , "guard"   : guard
@@ -509,12 +735,6 @@
       amount:decimal
     )
     @doc " Transfer to an account, failing if the account does not exist. "
-    @model [ (property (conserves-mass amount))
-             (property (= amount 1.0))
-             (property (valid-account-id sender))
-             (property (valid-account-id receiver))
-             (property (!= sender receiver)) ]
-
     (enforce (!= sender receiver)
       "You can only transfer to other accounts.")
     (enforce-valid-transfer sender receiver (precision id) amount)
@@ -534,21 +754,13 @@
       amount:decimal
     )
     @doc " Transfer to an account, creating it if it does not exist. "
-    @model [ (property (conserves-mass amount))
-             (property (= amount 1.0))
-             (property (valid-account-id sender))
-             (property (valid-account-id receiver))
-             (property (!= sender receiver)) ]
     (enforce (!= sender receiver)
       "You can only transfer to other accounts.")
-
     (enforce-valid-transfer sender receiver (precision id) amount)
     (if (= sender GALLINA_BANK) (require-capability (INTERNAL)) true)
-
     (enforce-coin-account-exists receiver)
 	  (let ((cur_guard (coin-account-guard receiver)))
     (enforce (= cur_guard receiver-guard) "Receiver guard must match their guard in the coin contract."))
-
     (with-capability (TRANSFER id sender receiver amount)
       (debit id sender amount)
       (credit id receiver receiver-guard amount))
@@ -571,10 +783,157 @@
       account:string
       amount:decimal
     )
-    @doc " Debits a token from an account "
+    @doc " Debits a Gallina from an account "
     (require-capability (DEBIT id account))
     (enforce-unit id amount)
-    (enforce (= amount 1.0)  "You can only debit whole Gallinas or Eggs." )
+    (enforce (= amount 1.0)  "You can only debit whole Gallinas." )
+    ;Update market-place-table with changes
+    (with-read gallinas-table id
+      { "id" := id1
+      , "name" := name1
+      , "generation" := generation1
+      , "gender" := gender1
+      , "mother-id" := motherid1
+      , "father-id" := fatherid1
+      , "birthday" := birthday1
+      , "special" := special1
+      , "next-breed-time" := next-breed-time1
+      , "gene-1" := gene-1-1
+      , "gene-1-p" := gene-1-p-1
+      , "gene-1-h1" := gene-1-h1-1
+      , "gene-1-h2" := gene-1-h2-1
+      , "gene-1-h3" := gene-1-h3-1
+      , "gene-2" := gene-2-1
+      , "gene-2-p" := gene-2-p-1
+      , "gene-2-h1" := gene-2-h1-1
+      , "gene-2-h2" := gene-2-h2-1
+      , "gene-2-h3" := gene-2-h3-1
+      , "gene-3" := gene-3-1
+      , "gene-3-p" := gene-3-p-1
+      , "gene-3-h1" := gene-3-h1-1
+      , "gene-3-h2" := gene-3-h2-1
+      , "gene-3-h3" := gene-3-h3-1
+      , "gene-4" := gene-4-1
+      , "gene-4-p" := gene-4-p-1
+      , "gene-4-h1" := gene-4-h1-1
+      , "gene-4-h2" := gene-4-h2-1
+      , "gene-4-h3" := gene-4-h3-1
+      , "gene-5" := gene-5-1
+      , "gene-5-p" := gene-5-p-1
+      , "gene-5-h1" := gene-5-h1-1
+      , "gene-5-h2" := gene-5-h2-1
+      , "gene-5-h3" := gene-5-h3-1
+      , "gene-6" := gene-6-1
+      , "gene-6-p" := gene-6-p-1
+      , "gene-6-h1" := gene-6-h1-1
+      , "gene-6-h2" := gene-6-h2-1
+      , "gene-6-h3" := gene-6-h3-1
+      , "gene-7" := gene-7-1
+      , "gene-7-p" := gene-7-p-1
+      , "gene-7-h1" := gene-7-h1-1
+      , "gene-7-h2" := gene-7-h2-1
+      , "gene-7-h3" := gene-7-h3-1
+      , "gene-8" := gene-8-1
+      , "gene-8-p" := gene-8-p-1
+      , "gene-8-h1" := gene-8-h1-1
+      , "gene-8-h2" := gene-8-h2-1
+      , "gene-8-h3" := gene-8-h3-1
+      , "gene-9" := gene-9-1
+      , "gene-9-p" := gene-9-p-1
+      , "gene-9-h1" := gene-9-h1-1
+      , "gene-9-h2" := gene-9-h2-1
+      , "gene-9-h3" := gene-9-h3-1
+      , "gene-10" := gene-10-1
+      , "gene-10-p" := gene-10-p-1
+      , "gene-10-h1" := gene-10-h1-1
+      , "gene-10-h2" := gene-10-h2-1
+      , "gene-10-h3" := gene-10-h3-1
+      , "gene-11" := gene-11-1
+      , "gene-11-p" := gene-11-p-1
+      , "gene-11-h1" := gene-11-h1-1
+      , "gene-11-h2" := gene-11-h2-1
+      , "gene-11-h3" := gene-11-h3-1
+      , "gene-12" := gene-12-1
+      , "gene-12-p" := gene-12-p-1
+      , "gene-12-h1" := gene-12-h1-1
+      , "gene-12-h2" := gene-12-h2-1
+      , "gene-12-h3" := gene-12-h3-1
+    }
+    (write gmarketplace id
+        { 'id: id
+        , 'account: account
+        , 'price: 98765.43
+        , 'forsale: false
+        , 'name: name1
+        , 'generation: generation1
+        , "mother-id": motherid1
+        , "father-id": fatherid1
+        , "birthday": birthday1
+        , "next-breed-time": next-breed-time1
+        , 'gender: gender1
+        , 'special: special1
+        , 'gene-1: gene-1-1
+        , "gene-1-p": gene-1-p-1
+        , "gene-1-h1": gene-1-h1-1
+        , "gene-1-h2": gene-1-h2-1
+        , "gene-1-h3": gene-1-h3-1
+        , "gene-2": gene-2-1
+        , "gene-2-p": gene-2-p-1
+        , "gene-2-h1": gene-2-h1-1
+        , "gene-2-h2": gene-2-h2-1
+        , "gene-2-h3": gene-2-h3-1
+        , "gene-3": gene-3-1
+        , "gene-3-p": gene-3-p-1
+        , "gene-3-h1": gene-3-h1-1
+        , "gene-3-h2": gene-3-h2-1
+        , "gene-3-h3": gene-3-h3-1
+        , "gene-4": gene-4-1
+        , "gene-4-p": gene-4-p-1
+        , "gene-4-h1": gene-4-h1-1
+        , "gene-4-h2": gene-4-h2-1
+        , "gene-4-h3": gene-4-h3-1
+        , "gene-5": gene-5-1
+        , "gene-5-p": gene-5-p-1
+        , "gene-5-h1": gene-5-h1-1
+        , "gene-5-h2": gene-5-h2-1
+        , "gene-5-h3": gene-5-h3-1
+        , "gene-6": gene-6-1
+        , "gene-6-p": gene-6-p-1
+        , "gene-6-h1": gene-6-h1-1
+        , "gene-6-h2": gene-6-h2-1
+        , "gene-6-h3": gene-6-h3-1
+        , "gene-7": gene-7-1
+        , "gene-7-p": gene-7-p-1
+        , "gene-7-h1": gene-7-h1-1
+        , "gene-7-h2": gene-7-h2-1
+        , "gene-7-h3": gene-7-h3-1
+        , "gene-8": gene-8-1
+        , "gene-8-p": gene-8-p-1
+        , "gene-8-h1": gene-8-h1-1
+        , "gene-8-h2": gene-8-h2-1
+        , "gene-8-h3": gene-8-h3-1
+        , "gene-9": gene-9-1
+        , "gene-9-p": gene-9-p-1
+        , "gene-9-h1": gene-9-h1-1
+        , "gene-9-h2": gene-9-h2-1
+        , "gene-9-h3": gene-9-h3-1
+        , "gene-10": gene-10-1
+        , "gene-10-p": gene-10-p-1
+        , "gene-10-h1": gene-10-h1-1
+        , "gene-10-h2": gene-10-h2-1
+        , "gene-10-h3": gene-10-h3-1
+        , "gene-11": gene-11-1
+        , "gene-11-p": gene-11-p-1
+        , "gene-11-h1": gene-11-h1-1
+        , "gene-11-h2": gene-11-h2-1
+        , "gene-11-h3": gene-11-h3-1
+        , "gene-12": gene-12-1
+        , "gene-12-p": gene-12-p-1
+        , "gene-12-h1": gene-12-h1-1
+        , "gene-12-h2": gene-12-h2-1
+        , "gene-12-h3": gene-12-h3-1
+        })
+      )
     (with-read gledger (key id account)
       { "balance" := balance }
       (enforce (<= amount balance) "Insufficient funds.")
@@ -602,20 +961,14 @@
       { "balance" := balance, "guard" := retg }
       (enforce (= retg guard)
         "Account guards do not match.")
-      ;update market-place-table in case gallina was for sale
-      (write marketplace-table id
-          { "id"      : id
-          , "account" : account
-          , "price"   : 0.0
-          , "forsale" : false
-          }
-      )
+      ;Update gledger
       (write gledger (key id account)
-        { "balance" : (+ balance amount)
-        , "guard"   : retg
-        , "id"   : id
-        , "account" : account
-        })
+      { "balance" : (+ balance amount)
+      , "guard"   : retg
+      , "id"   : id
+      , "account" : account
+      })
+      ;Update supply table
       (with-default-read supplies-table id
       { 'supply: 0.0 }
       { 'supply := s }
@@ -685,8 +1038,6 @@
     ( account:string
       name:string )
     @doc " Hatch A Gallina From An Egg "
-    @model [ (property (valid-account-id account))
-             (property (valid-gallina-name name)) ]
     ;Get current supply of Eggs
     (with-default-read supplies-table "Egg"
           { 'supply: 0.0 }
@@ -849,9 +1200,6 @@
 
   (defun sell-my-gallina ( id:string account:string price:decimal forsale:bool)
     @doc " Put a Gallina on the Market or update one already for sale "
-    @model [ (property (> price 0.0))
-             (property (valid-account-id account))
-             (property (!= id "Egg"))]
     (enforce (!= id "Egg")  "Eggs cannot be sold here." )
     (if (= account GALLINA_BANK) (require-capability (INTERNAL)) true)
     (with-read gledger (key id account)
@@ -865,15 +1213,9 @@
         (enforce (= account l_account) "Account Owners dont match.")
         (enforce (> l_balance 0.0) "No Gallina found in account with that ID.")
         (enforce (> price 0.0)  "Positive decimal sell prices only." )
-        ;Write marketplace table changes
-        (write marketplace-table id
-          { 'id: id
-          , 'account: account
-          , 'price: price
-          , 'forsale: forsale}
-        )
-        ;Return result
+        (update-marketplace id account forsale price "n")
         (if (= forsale true) (format "Gallina with ID {} is now for sale for {}" [id price]) (format "Gallina with ID {} is no longer for sale" [id]))
+
       )
     )
   )
@@ -884,10 +1226,8 @@
       guard:guard
       amount:decimal )
     @doc " Buy a Gallina off the Market "
-    @model [ (property (> amount 0.0))
-             (property (valid-account-id account)) ]
     ;Get current supply of Eggs
-    (with-read marketplace-table id
+    (with-read gmarketplace id
           { 'id := m_id
           , 'account := m_account
           , 'price := m_price
@@ -914,13 +1254,152 @@
             }
           )
           ;Update market-place-table with changes
-          (update marketplace-table id
-            { "id"      : id
-            , "account" : account
-            , "price"   : 0.0
-            , "forsale" : false
-            }
-          )
+          (with-read gallinas-table id
+            { "id" := id1
+            , "name" := name1
+            , "generation" := generation1
+            , "gender" := gender1
+            , "mother-id" := motherid1
+            , "father-id" := fatherid1
+            , "birthday" := birthday1
+            , "special" := special1
+            , "next-breed-time" := next-breed-time1
+            , "gene-1" := gene-1-1
+            , "gene-1-p" := gene-1-p-1
+            , "gene-1-h1" := gene-1-h1-1
+            , "gene-1-h2" := gene-1-h2-1
+            , "gene-1-h3" := gene-1-h3-1
+            , "gene-2" := gene-2-1
+            , "gene-2-p" := gene-2-p-1
+            , "gene-2-h1" := gene-2-h1-1
+            , "gene-2-h2" := gene-2-h2-1
+            , "gene-2-h3" := gene-2-h3-1
+            , "gene-3" := gene-3-1
+            , "gene-3-p" := gene-3-p-1
+            , "gene-3-h1" := gene-3-h1-1
+            , "gene-3-h2" := gene-3-h2-1
+            , "gene-3-h3" := gene-3-h3-1
+            , "gene-4" := gene-4-1
+            , "gene-4-p" := gene-4-p-1
+            , "gene-4-h1" := gene-4-h1-1
+            , "gene-4-h2" := gene-4-h2-1
+            , "gene-4-h3" := gene-4-h3-1
+            , "gene-5" := gene-5-1
+            , "gene-5-p" := gene-5-p-1
+            , "gene-5-h1" := gene-5-h1-1
+            , "gene-5-h2" := gene-5-h2-1
+            , "gene-5-h3" := gene-5-h3-1
+            , "gene-6" := gene-6-1
+            , "gene-6-p" := gene-6-p-1
+            , "gene-6-h1" := gene-6-h1-1
+            , "gene-6-h2" := gene-6-h2-1
+            , "gene-6-h3" := gene-6-h3-1
+            , "gene-7" := gene-7-1
+            , "gene-7-p" := gene-7-p-1
+            , "gene-7-h1" := gene-7-h1-1
+            , "gene-7-h2" := gene-7-h2-1
+            , "gene-7-h3" := gene-7-h3-1
+            , "gene-8" := gene-8-1
+            , "gene-8-p" := gene-8-p-1
+            , "gene-8-h1" := gene-8-h1-1
+            , "gene-8-h2" := gene-8-h2-1
+            , "gene-8-h3" := gene-8-h3-1
+            , "gene-9" := gene-9-1
+            , "gene-9-p" := gene-9-p-1
+            , "gene-9-h1" := gene-9-h1-1
+            , "gene-9-h2" := gene-9-h2-1
+            , "gene-9-h3" := gene-9-h3-1
+            , "gene-10" := gene-10-1
+            , "gene-10-p" := gene-10-p-1
+            , "gene-10-h1" := gene-10-h1-1
+            , "gene-10-h2" := gene-10-h2-1
+            , "gene-10-h3" := gene-10-h3-1
+            , "gene-11" := gene-11-1
+            , "gene-11-p" := gene-11-p-1
+            , "gene-11-h1" := gene-11-h1-1
+            , "gene-11-h2" := gene-11-h2-1
+            , "gene-11-h3" := gene-11-h3-1
+            , "gene-12" := gene-12-1
+            , "gene-12-p" := gene-12-p-1
+            , "gene-12-h1" := gene-12-h1-1
+            , "gene-12-h2" := gene-12-h2-1
+            , "gene-12-h3" := gene-12-h3-1
+          }
+          (write gmarketplace id
+              { 'id: id
+              , 'account: account
+              , 'price: 98765.43
+              , 'forsale: false
+              , 'name: name1
+              , 'generation: generation1
+              , "mother-id": motherid1
+              , "father-id": fatherid1
+              , "birthday": birthday1
+              , "next-breed-time": next-breed-time1
+              , 'gender: gender1
+              , 'special: special1
+              , 'gene-1: gene-1-1
+              , "gene-1-p": gene-1-p-1
+              , "gene-1-h1": gene-1-h1-1
+              , "gene-1-h2": gene-1-h2-1
+              , "gene-1-h3": gene-1-h3-1
+              , "gene-2": gene-2-1
+              , "gene-2-p": gene-2-p-1
+              , "gene-2-h1": gene-2-h1-1
+              , "gene-2-h2": gene-2-h2-1
+              , "gene-2-h3": gene-2-h3-1
+              , "gene-3": gene-3-1
+              , "gene-3-p": gene-3-p-1
+              , "gene-3-h1": gene-3-h1-1
+              , "gene-3-h2": gene-3-h2-1
+              , "gene-3-h3": gene-3-h3-1
+              , "gene-4": gene-4-1
+              , "gene-4-p": gene-4-p-1
+              , "gene-4-h1": gene-4-h1-1
+              , "gene-4-h2": gene-4-h2-1
+              , "gene-4-h3": gene-4-h3-1
+              , "gene-5": gene-5-1
+              , "gene-5-p": gene-5-p-1
+              , "gene-5-h1": gene-5-h1-1
+              , "gene-5-h2": gene-5-h2-1
+              , "gene-5-h3": gene-5-h3-1
+              , "gene-6": gene-6-1
+              , "gene-6-p": gene-6-p-1
+              , "gene-6-h1": gene-6-h1-1
+              , "gene-6-h2": gene-6-h2-1
+              , "gene-6-h3": gene-6-h3-1
+              , "gene-7": gene-7-1
+              , "gene-7-p": gene-7-p-1
+              , "gene-7-h1": gene-7-h1-1
+              , "gene-7-h2": gene-7-h2-1
+              , "gene-7-h3": gene-7-h3-1
+              , "gene-8": gene-8-1
+              , "gene-8-p": gene-8-p-1
+              , "gene-8-h1": gene-8-h1-1
+              , "gene-8-h2": gene-8-h2-1
+              , "gene-8-h3": gene-8-h3-1
+              , "gene-9": gene-9-1
+              , "gene-9-p": gene-9-p-1
+              , "gene-9-h1": gene-9-h1-1
+              , "gene-9-h2": gene-9-h2-1
+              , "gene-9-h3": gene-9-h3-1
+              , "gene-10": gene-10-1
+              , "gene-10-p": gene-10-p-1
+              , "gene-10-h1": gene-10-h1-1
+              , "gene-10-h2": gene-10-h2-1
+              , "gene-10-h3": gene-10-h3-1
+              , "gene-11": gene-11-1
+              , "gene-11-p": gene-11-p-1
+              , "gene-11-h1": gene-11-h1-1
+              , "gene-11-h2": gene-11-h2-1
+              , "gene-11-h3": gene-11-h3-1
+              , "gene-12": gene-12-1
+              , "gene-12-p": gene-12-p-1
+              , "gene-12-h1": gene-12-h1-1
+              , "gene-12-h2": gene-12-h2-1
+              , "gene-12-h3": gene-12-h3-1
+              })
+            )
         ;Return result
         (format " Purchased a Gallina with the ID {} for {} KDA " [id amount])
     )
@@ -932,10 +1411,6 @@
       account:string
       amount:decimal )
     @doc " Breed 2 Gallinas and Hatch The Egg "
-    @model [ (property (= amount 1.0))
-             (property (valid-account-id account))
-             (property (!= gid1 "Egg"))
-             (property (!= gid2 "Egg"))]
     (enforce (!= gid1 "Egg")  "Eggs dont breed." )
     (enforce (!= gid2 "Egg")  "Eggs dont breed." )
     ;Get both gallinas info
@@ -1114,19 +1589,18 @@
               (coin.transfer account GALLINA_BANK amount)
               ;Source entropy
               (let ((seed (abs(- (str-to-int 64 (base64-encode (take -1 (drop -1 (hash (at "block-time" (chain-data))))))) (str-to-int 64 (base64-encode (take 1 (at "prev-block-hash" (chain-data)))))))))
-                                  ;Spread entropy per gene
-                                  (let ((seedmap (map (- seed) [(str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -1 (hash (at "block-time" (chain-data)))))))) 2)0) id2 id1))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -2 (hash (at "block-time" (chain-data)))))))) 2)0) id1 id2))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -4 (hash (at "block-time" (chain-data)))))))) 2)0) id2 id1))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -5 (hash (at "block-time" (chain-data)))))))) 2)0) id1 id2))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -7 (hash (at "block-time" (chain-data)))))))) 2)0) id2 id1))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -8 (hash (at "block-time" (chain-data)))))))) 2)0) id1 id2))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -10 (hash (at "block-time" (chain-data)))))))) 2)0) id2 id1))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -11 (hash (at "block-time" (chain-data)))))))) 2)0) id1 id2))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -13 (hash (at "block-time" (chain-data)))))))) 2)0) id2 id1))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -14 (hash (at "block-time" (chain-data)))))))) 2)0) id1 id2))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -16 (hash (at "block-time" (chain-data)))))))) 2)0) id2 id1))))
-                                                          (str-to-int 64 (base64-encode(take 1 (if(=(mod (abs (str-to-int 64 (base64-encode (take -1 (drop -17 (hash (at "block-time" (chain-data)))))))) 2)0) id1 id2))))
+                                  (let ((seedmap (map (- seed) [(str-to-int 64 (base64-encode (take -1 (drop -1 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -2 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -4 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -5 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -7 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -8 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -10 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -11 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -13 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -14 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -16 (hash (at "block-time" (chain-data)))))))
+                                                          (str-to-int 64 (base64-encode (take -1 (drop -17 (hash (at "block-time" (chain-data)))))))
                                                           ])))
                                                           ;Limit entropy + create and confirm new gallina id
                                                           (let (
@@ -1242,21 +1716,9 @@
                                                                       "next-breed-time" : (add-time (at "block-time" (chain-data)) (days (* 3 generation2)))
                                                                     }
                                                                   )
-                                                                  ;Mark both parents as not for sale on the market in case they were
-                                                                  (write marketplace-table gid1
-                                                                      { "id"      : gid1
-                                                                      , "account" : account
-                                                                      , "price"   : 0.0
-                                                                      , "forsale" : false
-                                                                      }
-                                                                  )
-                                                                  (write marketplace-table gid2
-                                                                      { "id"      : gid2
-                                                                      , "account" : account
-                                                                      , "price"   : 0.0
-                                                                      , "forsale" : false
-                                                                      }
-                                                                  )
+                                                                  ;Mark both parents as not for sale on the market due to possible breed time changes
+                                                                  (update-marketplace gid1 account false 96543.21 "n")
+                                                                  (update-marketplace gid2 account false 96543.21 "n")
                                                                   ;Display result
                                                                   (format " Hatched 1 new Gallina with ID {} from parents {} and {} " [newid name1 name2])
                                                                 )
@@ -1288,9 +1750,6 @@
       newname:string
     )
     @doc " Change your Gallinas name "
-    @model [ (property (valid-account-id account))
-             (property (valid-gallina-name newname))
-             (property (!= gid "Egg")) ]
     (enforce (!= gid "Egg")  "Eggs dont have names." )
     (if (= account GALLINA_BANK) (require-capability (INTERNAL)) true)
     (with-read gledger (key gid account)
@@ -1299,9 +1758,13 @@
         (enforce-guard guard)
         (enforce (> balance 0.0) "You can only rename a Gallina that you currently own.")
         (validate-gallina-name newname)
+        ;update marketplace
+        (update-marketplace gid account false 6543.21 newname)
+        ;Return result
         (update gallinas-table gid
         { "name" : newname })
         (format "Changed the name of Gallina with the ID {} to {}" [gid newname])
+
       )
     )
   )
@@ -1474,7 +1937,6 @@
   (defun get-user-gallinas
     ( account:string )
     @doc " Get a list of Gallinas owned by a user "
-    @model [ (property (valid-account-id account)) ]
       (select gledger ['id]
         (and? (where 'account (= account))
           (where 'balance (< 0.0))))
@@ -1490,7 +1952,22 @@
 
   (defun get-gallinas-for-sale ()
     @doc " Get the list of Gallinas currently for sale "
-    (sort ['price] (select marketplace-table ["id", "price", "account"] (where "forsale" (= true))))
+    (sort ['price] (select gmarketplace (where "forsale" (= true))))
+  )
+
+  (defun get-marketplace-gallina-by-gene
+    ( gene: string
+      geneval: integer )
+    @doc " Search marketplace Gallinas by Gene and Gene Value "
+    (select gmarketplace
+        (and? (where gene (= geneval))
+          (where 'forsale (= true))))
+  )
+
+  (defun get-marketplace-gallina-by-price (price:decimal)
+    @doc " Get the list of Gallinas currently for sale by price "
+    (sort ['price] (select gmarketplace (and? (where 'forsale (= true))
+          (where 'price (<= price)))))
   )
 
 ; --------------------------------------------------------------------------
@@ -1509,6 +1986,7 @@
 ; Create tables and initialize
 ; --------------------------------------------------------------------------
 
+;(create-table free.collect-gallinas.gmarketplace)
 ;(create-table free.collect-gallinas.gledger)
 ;(create-table free.collect-gallinas.supplies-table)
 ;(create-table free.collect-gallinas.uri-table)
